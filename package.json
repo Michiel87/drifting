@@ -15,8 +15,5 @@
   "bugs": {
     "url": "https://github.com/Michiel87/drifting/issues"
   },
-  "homepage": "https://github.com/Michiel87/drifting#readme",
-  "publishConfig": { 
-    "registry": "https://npm.pkg.github.com/" 
-  }
+  "homepage": "https://github.com/Michiel87/drifting#readme"
 }
