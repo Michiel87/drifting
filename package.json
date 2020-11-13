@@ -1,0 +1,22 @@
+{
+  "name": "drifting",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "yarn test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Michiel87/drifting.git"
+  },
+  "author": "Michiel de Vos",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Michiel87/drifting/issues"
+  },
+  "homepage": "https://github.com/Michiel87/drifting#readme",
+  "publishConfig": { 
+    "registry": "https://npm.pkg.github.com/" 
+  }
+}
