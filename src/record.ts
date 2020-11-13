@@ -1,5 +1,11 @@
 import { useState, useEffect, createContext, useContext, useMemo } from 'react'
-import produce, { Draft } from "immer"
+import produce, { Draft } from 'immer'
+
+import { relationship, CollectionOperator, RecordOperator } from './operations'
+
+type DeepPartial<T> = {
+  [P in keyof T]?: DeepPartial<T[P]>
+}
 
 type Extensions<T> = ({
   drifting,
@@ -24,31 +30,23 @@ export function useRecord<T extends Record<string, any>> (record: T) {
   }, [record])
 
   function drifting (drafter: (args: Draft<T>) => void) {
-    setState(
-      produce(nextState, drafter)
-    )
+    setState(produce(nextState, drafter))
   }
 
   return useMemo(() => [
     nextState,
     {
+      ...extensions({ drifting, initialState: record, nextState }), 
       draft: drifting,
-      ...extensions({ drifting, initialState: record, nextState })
+      slice: <G extends (record: T) => any>(fn: G) => (record: T) => relationship(fn(record)) as Returner<G> 
     }
   ] as const, [nextState, extensions])
 }
 
+type Returner<T extends AnyFunction> = T extends (...args: any[]) => infer R
+? R extends any[] 
+  ? CollectionOperator<R>
+  : RecordOperator<R>
+: never
 
-// function Example () {
-//   const [record, controller] = useRecord(record)
-
-//   controller.draft(budget => {
-//     operations(budget.relationships.budgetitems)
-//       .remove('10')
-//       .add(record)
-//   })
-
-//   controller.save()
-// }
-
-
+type AnyFunction = (...args: any[]) => any
