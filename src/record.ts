@@ -3,10 +3,6 @@ import produce, { Draft } from 'immer'
 
 import { relationship, CollectionOperator, RecordOperator } from './operations'
 
-type DeepPartial<T> = {
-  [P in keyof T]?: DeepPartial<T[P]>
-}
-
 type Extensions<T> = ({
   drifting,
   initialState,
