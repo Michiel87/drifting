@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "yarn jest --watchAll"
+    "test": "yarn jest",
+    "test:watch": "yarn jest --watchAll"
   },
   "repository": {
     "type": "git",
