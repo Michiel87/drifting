@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useMemo } from 'react'
+import { useState, useEffect, useContext, useMemo, useRef } from 'react'
 import produce, { Draft } from 'immer'
 
 import { entity, CollectionOperator, RecordOperator } from './entity'
@@ -47,8 +47,8 @@ T extends Record<string, any> = Record<string, any>
       sliceEntity: <G extends (record: T) => any>(fn: G) => (
         record: T
       ) => entity(fn(record)) as Operator<G>,
-      ...extensions({ draft, initialState: record, nextState }), 
       draft,
+      ...extensions({ draft, initialState: record, nextState }), 
     }
   ] as const, [nextState, extensions])
 }

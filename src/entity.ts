@@ -15,23 +15,29 @@ export class RecordOperator<T extends Record<string, any>> {
 
   /**
    * 
-   * @param record 
-   * @description Replace selected record
+   * @description Replace entire record
+   * @example entity(record.info)
+   *   .replace({ ...newRecord })
    */
   replace (record: T) {
-    copy(this.target, record)
+    this.target && copy(this.target, record)
     return this
   }
 
   /**
    * 
-   * @description Replace selected record
-   * @example entity(record.attributes.info).draft(info => void (info.follow = [])
+   * @description Update properties, you can perform multiple expressions.
+   * @example entity(record.info)
+   *   .draft(info => void (info.follow = [])
    */
   draft (cb: (record: T) => void) {
-    cb(this.target)
+    this.target && cb(this.target)
   }
 }
+
+type InferTypeFromArray<T> = T extends (infer U)[]? U : never
+
+type Predicate<T> = (record: InferTypeFromArray<T>) => boolean
 
 export class CollectionOperator<T extends any[]> {
   target: T
@@ -40,18 +46,49 @@ export class CollectionOperator<T extends any[]> {
     this.target = target
   }
 
-  removeId (id: string) {
-    this.target = this.target.filter(record => record.id !== id) as T
+  /**
+   * 
+   * @description Add items to collection
+   * @example entity(record.collection)
+   *   .add(
+   *     { id: '10', type: 'company' },
+   *     { id: '11', type: 'company' },
+   *   )
+   */
+  add (...record: InferTypeFromArray<T>[]) {
+    this.target.push(...record)
     return this
   }
 
-  add (record: T extends (infer U)[]? U : never) {
-    this.target.push(record)
+  /**
+   * 
+   * @description Remove items from collection through predicates
+   * @example entity(record.collection)
+   *   .remove(
+   *     (item) => item.id === id,
+   *     (item) => item.type === 'company'
+   *   )
+   */
+  remove (...predicates: Predicate<T>[]) {
+    const queue = this.target.reduce((matches, next, index) => {
+      predicates.some(predicate => predicate(next)) && matches.push(index)
+      return matches
+    }, []).reverse()
+
+    queue.forEach(index => this.target.splice(index, 1))
+
     return this
   }
 
-  select (selector: any) {
-    return new RecordOperator(this.target.find(selector))
+  /**
+   * 
+   * @description Selects item from collection with a single predicate
+   * @example entity(record.collection)
+   *   .select((item) => item.id === id)
+   *   .replace({ id: '12', type: 'company' })
+   */
+  select (predicate: Predicate<T>) {
+    return new RecordOperator<InferTypeFromArray<T>>(this.target.find(predicate))
   }
 }
 
