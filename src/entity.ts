@@ -26,7 +26,7 @@ export class RecordOperator<T extends Record<string, any>> {
   /**
    * 
    * @description Replace selected record
-   * @example relationship(record.attributes.info).draft(info => void (info.follow = [])
+   * @example entity(record.attributes.info).draft(info => void (info.follow = [])
    */
   draft (cb: (record: T) => void) {
     cb(this.target)
@@ -71,12 +71,12 @@ class Performer<T> {
   }
 }
 
-export function relationship<T extends any[]> (target: T): CollectionOperator<T>
-export function relationship<T> (target: T): RecordOperator<T>
-export function relationship<T> (target: T): any {
+export function entity<T extends any[]> (target: T): CollectionOperator<T>
+export function entity<T> (target: T): RecordOperator<T>
+export function entity<T> (target: T): any {
   return new Performer(target).execute()
 }
 
 export function sliceSelector<T extends Record<string, any>> (selector: (model: T) => Draft<T>) {
-  return (record: T) => relationship(selector(record))
+  return (record: T) => entity(selector(record))
 }
