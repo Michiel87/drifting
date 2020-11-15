@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react-hooks'
 
-import { useRecord } from '../useRecord'
+import { useData } from '../useData'
 
 const record = {
   type: 'user',
@@ -39,9 +39,9 @@ const record = {
   }
 } 
 
-describe('useRecord', () => {
+describe('useData', () => {
   it('should update properties', () => {
-    const { result } = renderHook(() => useRecord(record))
+    const { result } = renderHook(() => useData(record))
 
     act(() => {
       result.current[1].draft((user) => {
@@ -54,7 +54,7 @@ describe('useRecord', () => {
   })
 
   it('should allow multiple property updates', () => {
-    const { result } = renderHook(() => useRecord(record))
+    const { result } = renderHook(() => useData(record))
 
     act(() => {
       const [, controller] = result.current
@@ -70,7 +70,7 @@ describe('useRecord', () => {
   })
 
   it('should update deeply nested properties', () => {
-    const { result } = renderHook(() => useRecord(record))
+    const { result } = renderHook(() => useData(record))
 
     act(() => {
       const [, controller] = result.current
@@ -85,7 +85,7 @@ describe('useRecord', () => {
 
   
   it('should update entire obj when using return', () => {
-    const { result } = renderHook(() => useRecord(record))
+    const { result } = renderHook(() => useData(record))
 
     act(() => {
       const [, controller] = result.current
@@ -98,7 +98,7 @@ describe('useRecord', () => {
 
   it('should apply changes to new object', () => {
     const reference = { id: '10', type: 'budget' , attributes: { name: 'test' } }
-    const { result } = renderHook(() => useRecord(reference))
+    const { result } = renderHook(() => useData(reference))
  
     act(() => {
       const [, controller] = result.current
@@ -121,6 +121,27 @@ describe('useRecord', () => {
     })
   })
 
+  it('should work with collections', () => {
+    const collection = [
+      { type: 'budget', id: '1' }
+    ]
+    const { result } = renderHook(() => useData(collection))
+ 
+    act(() => {
+      const [, controller] = result.current
+
+      controller.draft(collection => {
+        collection.push({ type: 'budget', id: '2' })
+      })
+    })
+
+    expect(result.current[0]).toEqual([
+      { type: 'budget', id: '1' },
+      { type: 'budget', id: '2' },
+    ])
+
+  })
+
   describe('entity - general', () => {
     it('should be able to use multiple entity performers', () => {
       const record = {
@@ -132,7 +153,7 @@ describe('useRecord', () => {
         ]
       }
 
-      const { result } = renderHook(() => useRecord(record))
+      const { result } = renderHook(() => useData(record))
 
       act(() => {
         const [, controller] = result.current
@@ -157,54 +178,6 @@ describe('useRecord', () => {
         { type: 'revision', id: '2' }
       ])
     })
-  })
-
-  describe('entity - record operations', () => {
-    it('should be able to replace entire record', () => {
-      const record = {
-        user: {
-          type: 'user',
-          id: '1',
-          name: 'Michiel'
-        }
-      }
-      
-      const { result } = renderHook(() => useRecord(record))
-
-      act(() => {
-        const [, controller] = result.current
-
-        controller.draft(record => {
-          controller.entity(record.user)
-            .replace({ type: 'user', id: '4', name: 'Exivity' })
-        })
-      })
-
-      expect(result.current[0].user).toEqual({ type: 'user', id: '4', name: 'Exivity' })
-    })
-
-    it('should be able to draft updates', () => {
-      const record = {
-        user: {
-          type: 'user',
-          id: '1',
-          name: 'Michiel'
-        }
-      }
-      
-      const { result } = renderHook(() => useRecord(record))
-
-      act(() => {
-        const [, controller] = result.current
-
-        controller.draft(record => {
-          controller.entity(record.user)
-            .draft(user => void (user.name = 'Exivity', user.id = '4'))
-        })
-      })
-
-      expect(result.current[0].user).toEqual({ type: 'user', id: '4', name: 'Exivity' })
-    })
 
     it('should be able to chain operations', () => {
       const record = {
@@ -214,7 +187,7 @@ describe('useRecord', () => {
         ]
       }
       
-      const { result } = renderHook(() => useRecord(record))
+      const { result } = renderHook(() => useData(record))
 
       act(() => {
         const [, controller] = result.current
@@ -238,6 +211,54 @@ describe('useRecord', () => {
     })
   })
 
+  describe('entity - record operations', () => {
+    it('should be able to replace entire record', () => {
+      const record = {
+        user: {
+          type: 'user',
+          id: '1',
+          name: 'Michiel'
+        }
+      }
+      
+      const { result } = renderHook(() => useData(record))
+
+      act(() => {
+        const [, controller] = result.current
+
+        controller.draft(record => {
+          controller.entity(record.user)
+            .replace({ type: 'user', id: '4', name: 'Exivity' })
+        })
+      })
+
+      expect(result.current[0].user).toEqual({ type: 'user', id: '4', name: 'Exivity' })
+    })
+
+    it('should be able to draft updates', () => {
+      const record = {
+        user: {
+          type: 'user',
+          id: '1',
+          name: 'Michiel'
+        }
+      }
+      
+      const { result } = renderHook(() => useData(record))
+
+      act(() => {
+        const [, controller] = result.current
+
+        controller.draft(record => {
+          controller.entity(record.user)
+            .draft(user => void (user.name = 'Exivity', user.id = '4'))
+        })
+      })
+
+      expect(result.current[0].user).toEqual({ type: 'user', id: '4', name: 'Exivity' })
+    })
+  })
+
   describe('entity - collection operations', () => {
     it('should be able to add', () => {
       const record = {
@@ -246,7 +267,7 @@ describe('useRecord', () => {
         ]
       }
 
-      const { result } = renderHook(() => useRecord(record))
+      const { result } = renderHook(() => useData(record))
 
       act(() => {
         const [, controller] = result.current
@@ -270,7 +291,7 @@ describe('useRecord', () => {
         ]
       }
 
-      const { result } = renderHook(() => useRecord(record))
+      const { result } = renderHook(() => useData(record))
 
       act(() => {
         const [, controller] = result.current
@@ -298,7 +319,7 @@ describe('useRecord', () => {
         ]
       }
       
-      const { result } = renderHook(() => useRecord(record))
+      const { result } = renderHook(() => useData(record))
 
       act(() => {
         const [, controller] = result.current
@@ -320,7 +341,7 @@ describe('useRecord', () => {
         ]
       }
       
-      const { result } = renderHook(() => useRecord(record))
+      const { result } = renderHook(() => useData(record))
 
       act(() => {
         const [, controller] = result.current
@@ -342,7 +363,7 @@ describe('useRecord', () => {
         ]
       }
       
-      const { result } = renderHook(() => useRecord(record))
+      const { result } = renderHook(() => useData(record))
 
       act(() => {
         const [, controller] = result.current
@@ -367,7 +388,7 @@ describe('useRecord', () => {
         ]
       }
       
-      const { result } = renderHook(() => useRecord(record))
+      const { result } = renderHook(() => useData(record))
 
       act(() => {
         const [, controller] = result.current
@@ -396,7 +417,7 @@ describe('useRecord', () => {
         ]
       }
       
-      const { result } = renderHook(() => useRecord(record))
+      const { result } = renderHook(() => useData(record))
 
       act(() => {
         const [, controller] = result.current
@@ -427,7 +448,7 @@ describe('useRecord', () => {
         }
       }
       
-      const { result } = renderHook(() => useRecord(record))
+      const { result } = renderHook(() => useData(record))
 
       act(() => {
         const [, controller] = result.current
@@ -457,7 +478,7 @@ describe('useRecord', () => {
         }
       }
       
-      const { result } = renderHook(() => useRecord(record))
+      const { result } = renderHook(() => useData(record))
 
       act(() => {
         const [, controller] = result.current

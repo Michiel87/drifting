@@ -25,9 +25,9 @@ type Operator<T extends AnyFunction> = T extends (...args: any[]) => infer R
 
 type AnyFunction = (...args: any[]) => any
 
-export function useRecord<
+export function useData<
 Extensions extends Record<string, any> = {},
-T extends Record<string, any> = Record<string, any>
+T extends (Record<string, any>|Record<string, any>[]) = Record<string, any>
 > (record: T) {
   const extensions = useContext(DRIFTER_CTX) as ExtensionsPopulator<T, Extensions> 
   const [nextState, setState] = useState<T>(record)
