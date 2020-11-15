@@ -2,10 +2,11 @@
   "name": "drifting",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "yarn jest",
-    "test:watch": "yarn jest --watchAll"
+    "test:watch": "yarn jest --watchAll",
+    "build": "rimraf ./lib && tsc"
   },
   "repository": {
     "type": "git",

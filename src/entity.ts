@@ -70,7 +70,7 @@ export class CollectionOperator<T extends any[]> {
    *   )
    */
   remove (...predicates: Predicate<T>[]) {
-    const queue = this.target.reduce((matches, next, index) => {
+    const queue: number[] = this.target.reduce((matches, next, index) => {
       // collect indexes from big to small
       predicates.some(predicate => predicate(next)) && matches.unshift(index)
       return matches
