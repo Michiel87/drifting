@@ -52,4 +52,3 @@ T extends (Record<string, any>|Record<string, any>[]) = Record<string, any>
     }
   ] as const, [nextState, extensions])
 }
-

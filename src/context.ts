@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import { ExtensionsPopulator } from './useRecord'
+import { ExtensionsPopulator } from './useData'
 
 const INITIAL_CONTEXT: ExtensionsPopulator<
 Record<string,any>,
