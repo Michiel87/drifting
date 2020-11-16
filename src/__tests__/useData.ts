@@ -453,13 +453,10 @@ describe('useData', () => {
       act(() => {
         const [, controller] = result.current
         const recordUser = controller.sliceEntity(record => record.user)
-
-        controller.draft(record => {
-          recordUser(record)
-            .draft(user => {
-              user.id = 'altered'
-            })
-        })
+       
+        recordUser(operator => operator.draft((user) => {
+          user.id = 'altered'
+        }))
       })
 
       expect(result.current[0].user).toEqual({ 
@@ -484,8 +481,8 @@ describe('useData', () => {
         const [, controller] = result.current
         const recordUserCollection = controller.sliceEntity(record => record.user.collection)
 
-        controller.draft(user => {
-          recordUserCollection(user)
+        recordUserCollection((operator) => {
+          operator
             .select((budget) => budget.id === '1')
             .draft(budget => {
               budget.name = 'altered'
