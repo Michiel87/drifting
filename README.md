@@ -7,8 +7,13 @@ This package attempts to make it easier to interact with complex data structures
 Drifting is fully typed with typescript and easy to extend with your own solutions.
 
 ---
+### Examples
 
-### [Examples](https://codesandbox.io/s/drifting-v101-demo-60ztq)
+## [record](https://codesandbox.io/s/drifting-v106-record-demo-qwk2x)
+## [collection](https://codesandbox.io/s/drifting-v106-collection-demo-60ztq)
+## [chaining](https://codesandbox.io/s/drifting-v106-chaining-demo-bzjk8)
+## [predicates](https://codesandbox.io/s/drifting-v106-predicates-demo-0reu3)
+## [extensions](https://codesandbox.io/s/drifting-v106-extensions-demo-q33oz)
 
 ---
 
@@ -41,8 +46,14 @@ API
 ```jsx
 import { useData } from 'drifting'
 
-function Component () {
-// in development
+const record = {
+  attributes: {
+    name: 'Exivity' 
+  }
+}
+
+// See sandboxes for usage examples
+const [entity, controller] = useData(record)
 
 ```
 
