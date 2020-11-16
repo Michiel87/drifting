@@ -1,5 +1,3 @@
-import { Draft } from 'immer'
-
 function copy<T extends Record<string, any>> (obj1: T, obj2: T) {
   for (let key in obj1) {
     obj1[key] = obj2[key]
@@ -114,8 +112,4 @@ export function entity<T extends any[]> (target: T): CollectionOperator<T>
 export function entity<T> (target: T): RecordOperator<T>
 export function entity<T> (target: T): any {
   return new Performer(target).execute()
-}
-
-export function sliceSelector<T extends Record<string, any>> (selector: (model: T) => Draft<T>) {
-  return (record: T) => entity(selector(record))
 }

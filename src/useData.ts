@@ -44,7 +44,9 @@ T extends (Record<string, any>|Record<string, any>[]) = Record<string, any>
     nextState,
     {
       entity,
-      sliceEntity: <G extends (record: T) => any>(fn: G) => entity(fn(nextState)) as Operator<G>,
+      sliceEntity: <G extends (record: T) => any>(slice: G) => (
+        record: T
+      ) => entity(slice(record)) as Operator<G>,
       draft,
       ...extensions({ draft, initialState: record, nextState }), 
     }

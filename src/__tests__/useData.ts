@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react-hooks'
 
-import { useData } from '../useData'
+import { useData } from '..'
 
 const record = {
   type: 'user',
@@ -454,8 +454,11 @@ describe('useData', () => {
         const [, controller] = result.current
         const recordUser = controller.sliceEntity(record => record.user)
 
-        recordUser.draft(user => {
-          user.id = 'altered'
+        controller.draft(record => {
+          recordUser(record)
+            .draft(user => {
+              user.id = 'altered'
+            })
         })
       })
 
@@ -480,13 +483,14 @@ describe('useData', () => {
       act(() => {
         const [, controller] = result.current
         const recordUserCollection = controller.sliceEntity(record => record.user.collection)
-        
-        recordUserCollection
-          .select((budget) => budget.id === '1')
-          .draft(budget => {
-            budget.name = 'altered'
-          })
-      
+
+        controller.draft(user => {
+          recordUserCollection(user)
+            .select((budget) => budget.id === '1')
+            .draft(budget => {
+              budget.name = 'altered'
+            })
+        })
       })
 
       expect(result.current[0].user.collection).toEqual([
