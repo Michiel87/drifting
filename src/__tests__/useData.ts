@@ -1,6 +1,5 @@
 import { renderHook, act } from '@testing-library/react-hooks'
-
-import { useData } from '../useData'
+import { useData } from '..'
 
 const record = {
   type: 'user',
