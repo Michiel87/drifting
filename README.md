@@ -13,7 +13,6 @@ Drifting is fully typed with typescript and easy to extend with your own solutio
 ## [collection](https://codesandbox.io/s/drifting-v106-collection-demo-60ztq)
 ## [chaining](https://codesandbox.io/s/drifting-v106-chaining-demo-bzjk8)
 ## [predicates](https://codesandbox.io/s/drifting-v106-predicates-demo-0reu3)
-## [extensions](https://codesandbox.io/s/drifting-v106-extensions-demo-q33oz)
 
 ---
 
