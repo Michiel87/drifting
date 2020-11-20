@@ -4,12 +4,13 @@ import produce, { Draft } from 'immer'
 function createSelect (nextState: any, updater: any) {
   return (selector: any) => {
     const slicedNextState = selector(nextState)
+    const slicedUpdater = (cb: any) => updater((state: any) => cb(selector(state)))
 
     return [
       slicedNextState,
       {
-        update: (cb: any) => updater((state: any) => cb(selector(state))),
-        select: createSelect(slicedNextState, (cb: any) => updater((state: any) => cb(selector(state)) )
+        update: slicedUpdater,
+        select: createSelect(slicedNextState, slicedUpdater)
       }
     ]
   }
