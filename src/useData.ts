@@ -1,39 +1,49 @@
 import { useState, useEffect, useMemo } from 'react'
 import produce, { Draft } from 'immer'
 
-function createSelect (nextState: any, updater: any) {
-  return (selector: any) => {
-    const slicedNextState = selector(nextState)
-    const slicedUpdater = (cb: any) => updater((state: any) => cb(selector(state)))
+type AnyFunction = (...args: any[]) => any
+
+type Slice<T extends AnyFunction> = T extends (...args: any[]) => infer R
+  ? R
+  : never
+
+type Updater<G> = (args: Draft<G>) => void|G|undefined
+
+function createSelect<G> (nextState: G, updater: (cb: Updater<G>) => void) {
+  return <T extends (slice: G) => any>(selector: T) => {
+    const slicedNextState: Slice<T> = selector(nextState)
+    const slicedUpdater = (cb: Updater<Slice<T>>) => updater((state) => cb(selector(state as G)))
 
     return [
       slicedNextState,
       {
         update: slicedUpdater,
-        select: createSelect(slicedNextState, slicedUpdater)
+        select: createSelect<Slice<T>>(slicedNextState, slicedUpdater)
       }
-    ]
+    ] as const
   }
 }
 
-export function useData<
-  T extends (Record<string, any>|Record<string, any>[]) = Record<string, any>
-> (record: T) {
+type Data = (Record<string, unknown>|Record<string, unknown>[])
+
+export function useData<T extends Data = Record<string, unknown>> (record: T) {
   const [nextState, setState] = useState<T>(record)
 
   useEffect(() => {
     setState(record)
   }, [record])
 
-  function updater (updater: (args: Draft<T>) => void) {
-    setState(produce(nextState, updater))
-  }
-
-  return useMemo(() => [
-    nextState,
-    {
-      update: updater,
-      select: createSelect(nextState, updater)
+  return useMemo(() => {
+    function updater (updater: (args: Draft<T>) => void) {
+      setState(produce(nextState, updater))
     }
-  ] as const, [nextState])
+
+    return [
+      nextState,
+      {
+        update: updater,
+        select: createSelect(nextState, updater)
+      }
+    ] as const
+  }, [nextState])
 }
