@@ -153,13 +153,10 @@ describe('useData', () => {
       }
     
       const { result } = renderHook(() => useData(rec))
-      const [, ctr] = result.current
-   
-              // @ts-ignore
-      const [, attrCtrl] = ctr.select((record) => record.attributes)
+      const [, ctrl] = result.current
+      const [, attrCtrl] = ctrl.select((record) => record.attributes)
   
       act(() => {
-        // @ts-ignore
         attrCtrl.update(attributes => {
           attributes.name = 'updated'
         })
