@@ -181,14 +181,11 @@ describe('useData', () => {
       }
     
       const { result } = renderHook(() => useData(rec))
-      const [, ctr] = result.current
-           // @ts-ignore
-      const [, attrCtrl] = ctr.select((record) => record.attributes)
-              // @ts-ignore
+      const [, ctrl] = result.current
+      const [, attrCtrl] = ctrl.select((record) => record.attributes)
       const [, infoCtrl] = attrCtrl.select((attributes) => attributes.info)
   
       act(() => {
-                // @ts-ignore
         infoCtrl.update(info => {
           info.status = 'offline'
         })
