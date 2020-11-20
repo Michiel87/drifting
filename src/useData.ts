@@ -1,15 +1,19 @@
 import { useState, useEffect, useMemo } from 'react'
 import produce, { Draft } from 'immer'
 
-import { entity, CollectionOperator, RecordOperator } from './entity'
+function createSelect (nextState: any, updater: any) {
+  return (selector: any) => {
+    const slicedNextState = selector(nextState)
 
-type Operator<T extends AnyFunction> = T extends (...args: any[]) => infer R
-? R extends any[] 
-  ? CollectionOperator<R>
-  : RecordOperator<R>
-: never
-
-type AnyFunction = (...args: any[]) => any
+    return [
+      slicedNextState,
+      {
+        update: (cb: any) => updater((state: any) => cb(selector(state))),
+        select: createSelect(slicedNextState, (cb: any) => updater((state: any) => cb(selector(state)) )
+      }
+    ]
+  }
+}
 
 export function useData<
   T extends (Record<string, any>|Record<string, any>[]) = Record<string, any>
@@ -20,19 +24,15 @@ export function useData<
     setState(record)
   }, [record])
 
-  function draft (drafter: (args: Draft<T>) => void) {
-    setState(produce(nextState, drafter))
+  function updater (updater: (args: Draft<T>) => void) {
+    setState(produce(nextState, updater))
   }
 
   return useMemo(() => [
     nextState,
     {
-      entity,
-      sliceEntity: <G extends (record: Draft<T>) => void>(slice: G) => (
-        cb: (operator: Operator<G>) => void
-      ) => draft((draft) => cb(entity(slice(draft)) as Operator<G>)),
-      draft 
+      update: updater,
+      select: createSelect(nextState, updater)
     }
   ] as const, [nextState])
 }
-
