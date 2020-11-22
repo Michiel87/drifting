@@ -12,9 +12,9 @@ type UpdateCb<G> = (args: Draft<G>) => G|void|undefined
 function createReturnedTuple<G> (nextState: G, updateFn: (cb: UpdateCb<G>) => void) {
   return <T extends (slice: G) => any>(getSelected: T) => {
     const slicedNextState: Slice<T> = getSelected(nextState)
-    
+
     const update = (updateSelected: UpdateCb<Slice<T>>) => (
-      updateFn((state) => updateSelected(getSelected(state as G)))
+      updateFn((proxy) => updateSelected(getSelected(proxy as G)))
     )
 
     return [
