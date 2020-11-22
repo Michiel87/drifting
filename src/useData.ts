@@ -40,4 +40,3 @@ export function useData<T extends Data = Record<string, unknown>> (data: T) {
     )(data => data)
   }, [nextDataState])
 }
-
