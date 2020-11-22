@@ -9,19 +9,38 @@ type Slice<T extends AnyFunction> = T extends (...args: any[]) => infer R
 
 type UpdateCb<G> = (args: Draft<G>) => G|void|undefined
 
-function createReturnedTuple<G> (nextState: G, updateFn: (cb: UpdateCb<G>) => void) {
+function createReturnedTuple<G> (nextDataState: G, updateFn: (cb: UpdateCb<G>) => void) {
   return <T extends (slice: G) => any>(getSelected: T) => {
-    const slicedNextState: Slice<T> = getSelected(nextState)
+    const selectedDataState: Slice<T> = getSelected(nextDataState)
 
     const update = (updateSelected: UpdateCb<Slice<T>>) => (
       updateFn((draft) => updateSelected(getSelected(draft as G)))
     )
 
     return [
-      slicedNextState,
+      selectedDataState,
       {
+      /**
+       * @description 
+       * Use .update() to make mutations, like with immer, to your data structure. 
+       * @example 
+       * const [record, { update }] useData(data)
+       * 
+       * update((record) => {
+       *   record.attributes.status = 'successful'
+       *   record.attributes.info = 'some value...'
+       * })
+      */
         update,
-        select: createReturnedTuple<Slice<T>>(slicedNextState, update)
+      /**
+       * @description 
+       * Narrow down the state and updater by using .select()
+       * @example 
+       * const [record, { select }] useData(data)
+       * 
+       * const [attributes, { update }] = select(record => record.atributes)
+      */
+        select: createReturnedTuple<Slice<T>>(selectedDataState, update)
       }
     ] as const
   }
