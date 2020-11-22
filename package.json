@@ -1,6 +1,6 @@
 {
   "name": "drifting",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A fully typescript typed react solution for interacting with complex data-structures",
   "main": "lib/index.js",
   "scripts": {
