@@ -14,7 +14,7 @@ function createReturnedTuple<G> (nextState: G, updateFn: (cb: UpdateCb<G>) => vo
     const slicedNextState: Slice<T> = getSelected(nextState)
 
     const update = (updateSelected: UpdateCb<Slice<T>>) => (
-      updateFn((proxy) => updateSelected(getSelected(proxy as G)))
+      updateFn((draft) => updateSelected(getSelected(draft as G)))
     )
 
     return [
