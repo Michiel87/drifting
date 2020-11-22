@@ -9,16 +9,19 @@ type Slice<T extends AnyFunction> = T extends (...args: any[]) => infer R
 
 type UpdateCb<G> = (args: Draft<G>) => G|void|undefined
 
-function createReturnedTuple<G> (nextState: G, updater: (cb: UpdateCb<G>) => void) {
-  return <T extends (slice: G) => any>(selector: T) => {
-    const slicedNextState: Slice<T> = selector(nextState)
-    const slicedUpdater = (cb: UpdateCb<Slice<T>>) => updater((state) => cb(selector(state as G)))
+function createReturnedTuple<G> (nextState: G, updateFn: (cb: UpdateCb<G>) => void) {
+  return <T extends (slice: G) => any>(getSelected: T) => {
+    const slicedNextState: Slice<T> = getSelected(nextState)
+    
+    const update = (updateSelected: UpdateCb<Slice<T>>) => (
+      updateFn((state) => updateSelected(getSelected(state as G)))
+    )
 
     return [
       slicedNextState,
       {
-        update: slicedUpdater,
-        select: createReturnedTuple<Slice<T>>(slicedNextState, slicedUpdater)
+        update,
+        select: createReturnedTuple<Slice<T>>(slicedNextState, update)
       }
     ] as const
   }
