@@ -7,18 +7,18 @@ type Slice<T extends AnyFunction> = T extends (...args: any[]) => infer R
   ? R
   : never
 
-type Updater<G> = (args: Draft<G>) => void|G|undefined
+type UpdateCb<G> = (args: Draft<G>) => G|void|undefined
 
-function createSelect<G> (nextState: G, updater: (cb: Updater<G>) => void) {
+function createReturnedTuple<G> (nextState: G, updater: (cb: UpdateCb<G>) => void) {
   return <T extends (slice: G) => any>(selector: T) => {
     const slicedNextState: Slice<T> = selector(nextState)
-    const slicedUpdater = (cb: Updater<Slice<T>>) => updater((state) => cb(selector(state as G)))
+    const slicedUpdater = (cb: UpdateCb<Slice<T>>) => updater((state) => cb(selector(state as G)))
 
     return [
       slicedNextState,
       {
         update: slicedUpdater,
-        select: createSelect<Slice<T>>(slicedNextState, slicedUpdater)
+        select: createReturnedTuple<Slice<T>>(slicedNextState, slicedUpdater)
       }
     ] as const
   }
@@ -26,24 +26,17 @@ function createSelect<G> (nextState: G, updater: (cb: Updater<G>) => void) {
 
 type Data = (Record<string, unknown>|Record<string, unknown>[])
 
-export function useData<T extends Data = Record<string, unknown>> (record: T) {
-  const [nextState, setState] = useState<T>(record)
+export function useData<T extends Data = Record<string, unknown>> (data: T) {
+  const [nextDataState, setDataState] = useState<T>(data)
 
   useEffect(() => {
-    setState(record)
-  }, [record])
+    setDataState(data)
+  }, [data])
 
   return useMemo(() => {
-    function updater (updater: (args: Draft<T>) => void) {
-      setState(produce(nextState, updater))
-    }
-
-    return [
-      nextState,
-      {
-        update: updater,
-        select: createSelect(nextState, updater)
-      }
-    ] as const
-  }, [nextState])
+    return createReturnedTuple(nextDataState, (updater) => {
+      setDataState(produce(nextDataState, updater) as T)
+    })(data => data)
+  }, [nextDataState])
 }
+

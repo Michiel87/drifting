@@ -86,15 +86,26 @@ describe('useData', () => {
   
     
     it('should update entire obj when using return', () => {
-      const { result } = renderHook(() => useData(record))
+      const data = {
+        replace: {
+          type: 'item',
+          id: 'not-replaced'
+        }
+      }
+
+      const { result } = renderHook(() => useData(data))
   
       act(() => {
         const [, controller] = result.current
   
-        controller.update(user => ({ id: 'replaced', type: user.type }))
+        controller.update(data => ({
+          replace: { 
+            id: 'replaced', type: data.replace.type 
+          }
+        }))
       })
   
-      expect(result.current[0]).toEqual({ id: 'replaced', type: 'user' })
+      expect(result.current[0]).toEqual({ replace: { id: 'replaced', type: 'item' } })
     })
   
     it('should apply changes to new object', () => {
