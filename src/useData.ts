@@ -34,9 +34,10 @@ export function useData<T extends Data = Record<string, unknown>> (data: T) {
   }, [data])
 
   return useMemo(() => {
-    return createReturnedTuple(nextDataState, (updater) => {
-      setDataState(produce(nextDataState, updater) as T)
-    })(data => data)
+    return createReturnedTuple(
+      nextDataState, 
+      (updater) => void (setDataState(produce(nextDataState, updater) as T))
+    )(data => data)
   }, [nextDataState])
 }
 
