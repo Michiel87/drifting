@@ -1,33 +1,28 @@
 import produce, { Draft } from 'immer'
 import { useEffect, useMemo, useState } from 'react'
 
-type AnyFunction = (...args: any[]) => any
+type Updater<G> = (draft: Draft<G>) => void
 
-type Slice<T extends AnyFunction> = T extends (...args: any[]) => infer R
-  ? R
-  : never
+function createSelect<G> (data: G, onUpdate: (updater: Updater<G>) => void) {
+  return <T>(selector: (data: G) => T) => {
+    const selectedState = selector(data)
 
-type UpdateCb<G> = (args: Draft<G>) => G|void|undefined
-
-function createReturnedTuple<G> (nextDataState: G, updateFn: (cb: UpdateCb<G>) => void) {
-  return <T extends (slice: G) => any>(getSelected: T) => {
-    const selectedDataState: Slice<T> = getSelected(nextDataState)
-
-    const update = (updateSelected: UpdateCb<Slice<T>>) => (
-      updateFn((draft) => updateSelected(getSelected(draft as G)))
+    const update = (updater: Updater<T>) => (
+      onUpdate((draft) => updater(selector(draft as G) as Draft<T>) as any)
     )
 
     return [
-      selectedDataState,
+      selectedState,
       {
       /**
        * @description 
-       * Use .update() to make mutations, like with immer, to your data structure. 
+       * .update() uses immer to allow you to mutate your state in a pure way.
+       * Read more about immer: https://immerjs.github.io/immer/docs/produce
        * @example 
        * ```typescript
        * [[include:update.example.ts]]
        * ```
-      */
+       */
         update,
       /**
        * @description 
@@ -36,8 +31,8 @@ function createReturnedTuple<G> (nextDataState: G, updateFn: (cb: UpdateCb<G>) =
        * ```typescript
        * [[include:select.example.ts]]
        * ```
-      */
-        select: createReturnedTuple<Slice<T>>(selectedDataState, update)
+       */
+        select: createSelect(selectedState, update)
       }
     ] as const
   }
@@ -46,16 +41,13 @@ function createReturnedTuple<G> (nextDataState: G, updateFn: (cb: UpdateCb<G>) =
 type Data = (Record<string, unknown>|Record<string, unknown>[])
 
 export function useData<T extends Data = Record<string, unknown>> (data: T) {
-  const [nextDataState, setDataState] = useState<T>(data)
+  const [state, setState] = useState(data)
 
-  useEffect(() => {
-    setDataState(data)
-  }, [data])
+  useEffect(() => { setState(data) }, [data])
 
   return useMemo(() => {
-    return createReturnedTuple(
-      nextDataState, 
-      (updater) => void (setDataState(produce(nextDataState, updater) as T))
-    )(data => data)
-  }, [nextDataState])
+    const rootSelect = createSelect(state, (updater) => setState(produce(state, updater)))
+
+    return rootSelect(data => data)
+  }, [state])
 }
