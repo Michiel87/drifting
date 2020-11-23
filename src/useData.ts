@@ -2,26 +2,35 @@ import produce, { Draft } from 'immer'
 import { useEffect, useMemo, useState } from 'react'
 
 type Updater<G> = (draft: Draft<G>) => Draft<G>|undefined|void
-type Selector<G, T> = {
-  (data: G): T
-  (draft: Draft<G>): Draft<T>
+
+function copy<T extends Record<string, any>> (obj1: T, obj2: T) {
+  for (let key in obj1) {
+    obj1[key] = obj2[key]
+  }
 }
 
-function createSelect<G> (data: G, onUpdate: (updater: Updater<G>) => void) {
-  return <T>(selector: Selector<G, T>) => {
+function createSelect<G> (data: G, onUpdate: (updater: (draft: Draft<G>) => void) => void) {
+  return <T>(selector: (data: G) => T) => {
     const selectedState = selector(data)
 
     const update = (updater: Updater<T>) => (
-      onUpdate((draft) => updater(selector(draft)) as any)
+      onUpdate((draft) => {
+        const selectedDraft = selector(draft as G) as Draft<T>
+        const result = updater(selectedDraft)
+
+        if (result) {
+          copy(selectedDraft, result)
+        }
+      })
     )
+
 
     return [
       selectedState,
       {
       /**
        * @description 
-       * .update() uses immer to allow you to mutate your state in a pure way.
-       * Read more about immer: https://immerjs.github.io/immer/docs/produce
+       * .update() uses [produce from immerjs](https://immerjs.github.io/immer/docs/produce) to allow you to mutate your state in a pure way.
        * @example 
        * ```typescript
        * [[include:update.example.ts]]

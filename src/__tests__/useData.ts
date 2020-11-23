@@ -203,7 +203,7 @@ describe('useData', () => {
       expect(record.attributes.info.status).toBe('offline')
     })
 
-    it('should be possible to replace narrowed state', () => {
+    it('should be possible to return a new slice when using select', () => {
       const rec = { 
         type: 'budget' , 
         attributes: { 
@@ -220,10 +220,11 @@ describe('useData', () => {
       const [, infoCtrl] = attrCtrl.select((attributes) => attributes.info)
   
       act(() => {
-        infoCtrl.update(info => ({ status: 'offline' }))
+        infoCtrl.update(() => ({ status: 'offline' }))
       })
   
       const record = result.current[0]
+
       expect(record.attributes.info.status).toBe('offline')
     })
   })
