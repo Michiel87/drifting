@@ -20,11 +20,12 @@ function createReturnedTuple<G> (nextDataState: G, updateFn: (cb: UpdateCb<G>) =
     const selectedDataState: Slice<T> = getSelected(nextDataState)
 
     const update = (updateSelected: UpdateCb<Slice<T>>) => updateFn((draft) => {
-       const result = updateSelected(getSelected(draft as G))
+      const selectedDraft = getSelected(draft as G)
+      const result = updateSelected(selectedDraft)
 
-       if (result) {
-          copy(getSelected(draft as G), result)
-       }
+      if (result) {
+        copy(selectedDraft, result)
+      }
     })
 
     return [
