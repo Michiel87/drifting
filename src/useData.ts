@@ -9,13 +9,23 @@ type Slice<T extends AnyFunction> = T extends (...args: any[]) => infer R
 
 type UpdateCb<G> = (args: Draft<G>) => G|void|undefined
 
+function copy<T extends Record<string, any>> (obj1: T, obj2: T) {
+  for (let key in obj1) {
+    obj1[key] = obj2[key]
+  }
+}
+
 function createReturnedTuple<G> (nextDataState: G, updateFn: (cb: UpdateCb<G>) => void) {
   return <T extends (slice: G) => any>(getSelected: T) => {
     const selectedDataState: Slice<T> = getSelected(nextDataState)
 
-    const update = (updateSelected: UpdateCb<Slice<T>>) => (
-      updateFn((draft) => updateSelected(getSelected(draft as G)))
-    )
+    const update = (updateSelected: UpdateCb<Slice<T>>) => updateFn((draft) => {
+       const result = updateSelected(getSelected(draft as G))
+
+       if (result) {
+          copy(getSelected(draft as G), result)
+       }
+    })
 
     return [
       selectedDataState,
