@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react'
 import produce, { Draft } from 'immer'
+import { useEffect, useMemo, useState } from 'react'
 
 type AnyFunction = (...args: any[]) => any
 
@@ -24,21 +24,18 @@ function createReturnedTuple<G> (nextDataState: G, updateFn: (cb: UpdateCb<G>) =
        * @description 
        * Use .update() to make mutations, like with immer, to your data structure. 
        * @example 
-       * const [record, { update }] useData(data)
-       * 
-       * update((record) => {
-       *   record.attributes.status = 'successful'
-       *   record.attributes.info = 'some value...'
-       * })
+       * ```typescript
+       * [[include:update.example.ts]]
+       * ```
       */
         update,
       /**
        * @description 
        * Narrow down the state and updater by using .select()
        * @example 
-       * const [record, { select }] useData(data)
-       * 
-       * const [attributes, { update }] = select(record => record.atributes)
+       * ```typescript
+       * [[include:select.example.ts]]
+       * ```
       */
         select: createReturnedTuple<Slice<T>>(selectedDataState, update)
       }
