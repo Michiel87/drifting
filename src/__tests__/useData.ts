@@ -202,5 +202,29 @@ describe('useData', () => {
       const record = result.current[0]
       expect(record.attributes.info.status).toBe('offline')
     })
+
+    it('should be possible to replace narrowed state', () => {
+      const rec = { 
+        type: 'budget' , 
+        attributes: { 
+          name: 'test',
+          info: {
+            status: 'online'
+          }
+        }
+      }
+    
+      const { result } = renderHook(() => useData(rec))
+      const [, ctrl] = result.current
+      const [, attrCtrl] = ctrl.select((record) => record.attributes)
+      const [, infoCtrl] = attrCtrl.select((attributes) => attributes.info)
+  
+      act(() => {
+        infoCtrl.update(info => ({ status: 'offline' }))
+      })
+  
+      const record = result.current[0]
+      expect(record.attributes.info.status).toBe('offline')
+    })
   })
 })
