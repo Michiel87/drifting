@@ -6,7 +6,8 @@
   "scripts": {
     "test": "yarn jest",
     "test:watch": "yarn jest --watchAll",
-    "build": "rimraf ./lib && tsc"
+    "build": "rimraf ./lib && tsc",
+    "build:watch": "rimraf ./lib && tsc --watch true"
   },
   "repository": {
     "type": "git",
