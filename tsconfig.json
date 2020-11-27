@@ -5,7 +5,6 @@
     "declaration": true,                   /* Generates corresponding '.d.ts' file. */
     "outDir": "./lib",                        /* Redirect output structure to the directory. */
 
-
     /* Strict Type-Checking Options */
     "strict": true,                           /* Enable all strict type-checking options. */
     "noImplicitAny": true,                    /* Raise error on expressions and declarations with an implied 'any' type. */
@@ -18,10 +17,13 @@
 
     /* Advanced Options */
     "skipLibCheck": true,                     /* Skip type checking of declaration files. */
-    "forceConsistentCasingInFileNames": true  /* Disallow inconsistently-cased references to the same file. */
+    "forceConsistentCasingInFileNames": true,  /* Disallow inconsistently-cased references to the same file. */
+ 
+    "pretty": true
   },
   "include": [
-    "src"
+    "src", 
+    "examples"
   ],
   "exclude": [
     "node_modules",

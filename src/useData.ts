@@ -1,38 +1,66 @@
-import { useState, useEffect, useMemo } from 'react'
 import produce, { Draft } from 'immer'
+import { useEffect, useMemo, useState } from 'react'
 
-import { entity, CollectionOperator, RecordOperator } from './entity'
+type Updater<G> = (draft: Draft<G>) => Draft<G>|undefined|void
 
-type Operator<T extends AnyFunction> = T extends (...args: any[]) => infer R
-? R extends any[] 
-  ? CollectionOperator<R>
-  : RecordOperator<R>
-: never
-
-type AnyFunction = (...args: any[]) => any
-
-export function useData<
-  T extends (Record<string, any>|Record<string, any>[]) = Record<string, any>
-> (record: T) {
-  const [nextState, setState] = useState<T>(record)
-
-  useEffect(() => {
-    setState(record)
-  }, [record])
-
-  function draft (drafter: (args: Draft<T>) => void) {
-    setState(produce(nextState, drafter))
+function copy<T extends Record<string, any>> (obj1: T, obj2: T) {
+  for (let key in obj1) {
+    obj1[key] = obj2[key]
   }
-
-  return useMemo(() => [
-    nextState,
-    {
-      entity,
-      sliceEntity: <G extends (record: Draft<T>) => void>(slice: G) => (
-        cb: (operator: Operator<G>) => void
-      ) => draft((draft) => cb(entity(slice(draft)) as Operator<G>)),
-      draft 
-    }
-  ] as const, [nextState])
 }
 
+function createSelect<G> (data: G, onUpdate: (updater: (draft: Draft<G>) => void) => void) {
+  return <T>(selector: (data: G) => T) => {
+    const selectedState = selector(data)
+
+    const update = (updater: Updater<T>) => (
+      onUpdate((draft) => {
+        const selectedDraft = selector(draft as G) as Draft<T>
+        const result = updater(selectedDraft)
+
+        if (result) {
+          copy(selectedDraft, result)
+        }
+      })
+    )
+
+
+    return [
+      selectedState,
+      {
+      /**
+       * @description 
+       * .update() uses [produce from immerjs](https://immerjs.github.io/immer/docs/produce) to allow you to mutate your state in a pure way.
+       * @example 
+       * ```typescript
+       * [[include:update.example.ts]]
+       * ```
+       */
+        update,
+      /**
+       * @description 
+       * Narrow down the state and updater by using .select()
+       * @example 
+       * ```typescript
+       * [[include:select.example.ts]]
+       * ```
+       */
+        select: createSelect(selectedState, update)
+      }
+    ] as const
+  }
+}
+
+type Data = (Record<string, unknown>|Record<string, unknown>[])
+
+export function useData<T extends Data = Record<string, unknown>> (data: T) {
+  const [state, setState] = useState(data)
+
+  useEffect(() => void setState(data), [data])
+
+  return useMemo(() => {
+    const rootSelect = createSelect(state, (updater) => setState(produce(state, updater)))
+
+    return rootSelect(data => data)
+  }, [state])
+}
