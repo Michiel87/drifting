@@ -1,6 +1,6 @@
 {
   "name": "drifting",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "A fully typescript typed react solution for interacting with complex data-structures",
   "main": "lib/index.js",
   "scripts": {
@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "immer": "8.0.0",
-    "react": "17.0.1",
-    "react-dom": "17.0.1"
+    "react": "16.14.0",
+    "react-dom": "16.14.0"
   }
 }
