@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/Michiel87/drifting#readme",
   "devDependencies": {
-    "@testing-library/react-hooks": "3.7.0",
+    "@testing-library/react-hooks": "4.0.1",
     "@types/jest": "26.0.20",
     "@types/react": "17.0.0",
     "@types/react-dom": "17.0.0",
